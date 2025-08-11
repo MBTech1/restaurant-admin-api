@@ -4,6 +4,8 @@ import com.monapp.model.Utilisateur;
 import com.monapp.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -11,6 +13,21 @@ public class AuthController {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestParam String nom,
+                                           @RequestParam String email,
+                                           @RequestParam String motDePasse) {
+        if (utilisateurRepository.findByEmail(email) != null) {
+            return ResponseEntity.status(409).body("Email déjà utilisé");
+        }
+        Utilisateur u = new Utilisateur();
+        u.setNom(nom);
+        u.setEmail(email);
+        u.setMotDePasse(motDePasse); // en clair (temporaire)
+        utilisateurRepository.save(u);
+        return ResponseEntity.status(201).body("Inscription réussie");
+    }
 
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String motDePasse) {
@@ -23,7 +40,5 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public String logout() {
-        return "Déconnexion réussie";
-    }
+    public String logout() { return "Déconnexion réussie"; }
 }

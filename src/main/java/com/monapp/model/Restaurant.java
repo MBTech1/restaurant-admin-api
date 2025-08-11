@@ -3,6 +3,8 @@ package com.monapp.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table (name = "restaurant")
+
 public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
