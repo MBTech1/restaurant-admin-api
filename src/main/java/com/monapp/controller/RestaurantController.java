@@ -48,6 +48,7 @@ public class RestaurantController {
     // POST /api/restaurants → création d'un restaurant
     @PostMapping
     public Restaurant createRestaurant(@RequestBody Restaurant restaurant) {
+        // Les champs telephone, typeCuisine, emailContact sont pris en charge automatiquement
         return restaurantRepository.save(restaurant);
     }
 
@@ -58,6 +59,24 @@ public class RestaurantController {
                 .map(restaurant -> {
                     restaurant.setNom(updatedRestaurant.getNom());
                     restaurant.setAdresse(updatedRestaurant.getAdresse());
+                    restaurant.setTelephone(updatedRestaurant.getTelephone());
+                    restaurant.setTypeCuisine(updatedRestaurant.getTypeCuisine());
+                    restaurant.setEmailContact(updatedRestaurant.getEmailContact());
+                    return restaurantRepository.save(restaurant);
+                })
+                .orElse(null);
+    }
+
+    // PATCH /api/restaurants/{id} → mise à jour partielle
+    @PatchMapping("/{id}")
+    public Restaurant patchRestaurant(@PathVariable Long id, @RequestBody Restaurant patch) {
+        return restaurantRepository.findById(id)
+                .map(restaurant -> {
+                    if (patch.getNom() != null) restaurant.setNom(patch.getNom());
+                    if (patch.getAdresse() != null) restaurant.setAdresse(patch.getAdresse());
+                    if (patch.getTelephone() != null) restaurant.setTelephone(patch.getTelephone());
+                    if (patch.getTypeCuisine() != null) restaurant.setTypeCuisine(patch.getTypeCuisine());
+                    if (patch.getEmailContact() != null) restaurant.setEmailContact(patch.getEmailContact());
                     return restaurantRepository.save(restaurant);
                 })
                 .orElse(null);

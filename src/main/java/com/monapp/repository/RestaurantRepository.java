@@ -15,4 +15,19 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
     // Trouver par adresse partielle
     List<Restaurant> findByAdresseContainingIgnoreCase(String adresse);
+
+    // Trouver par téléphone exact
+    Restaurant findByTelephone(String telephone);
+
+    // Trouver par téléphone partiel
+    List<Restaurant> findByTelephoneContainingIgnoreCase(String telephone);
+
+    // Trouver par type de cuisine (partiel)
+    List<Restaurant> findByTypeCuisineContainingIgnoreCase(String typeCuisine);
+
+    // Trouver par email de contact exact
+    Restaurant findByEmailContact(String emailContact);
+
+    // Trouver par email de contact partiel
+    List<Restaurant> findByEmailContactContainingIgnoreCase(String emailContact);
 }
