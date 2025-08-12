@@ -24,7 +24,7 @@ public class AuthController {
         Utilisateur u = new Utilisateur();
         u.setNom(nom);
         u.setEmail(email);
-        u.setMotDePasse(motDePasse); // en clair (temporaire)
+        u.setMotDePasse(motDePasse);
         utilisateurRepository.save(u);
         return ResponseEntity.status(201).body("Inscription réussie");
     }
