@@ -1,5 +1,6 @@
 package com.monapp.controller;
 
+import org.springframework.http.ResponseEntity;
 import com.monapp.model.Utilisateur;
 import com.monapp.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,14 @@ public class UserController {
     @GetMapping
     public List<Utilisateur> getAllUsers() {
         return utilisateurRepository.findAll();
+    }
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<Long> getUserIdByEmail(@PathVariable String email) {
+        Utilisateur user = utilisateurRepository.findByEmail(email);
+        if (user != null) {
+            return ResponseEntity.ok(user.getId()); // On ne retourne que l'ID
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
