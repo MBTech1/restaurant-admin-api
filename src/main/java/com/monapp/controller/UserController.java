@@ -15,10 +15,21 @@ public class UserController {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
+    // GET /users -> liste complète
     @GetMapping
     public List<Utilisateur> getAllUsers() {
         return utilisateurRepository.findAll();
     }
+
+    // GET /users/{id} -> récupérer un user par ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Utilisateur> getUserById(@PathVariable Long id) {
+        return utilisateurRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // GET /users/by-email/{email} -> récupérer l'ID via l'email
     @GetMapping("/by-email/{email}")
     public ResponseEntity<Long> getUserIdByEmail(@PathVariable String email) {
         Utilisateur user = utilisateurRepository.findByEmail(email);
@@ -28,25 +39,54 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    // POST /users -> création (role optionnel)
     @PostMapping
-    public Utilisateur addUser(@RequestBody Utilisateur user) {
-        return utilisateurRepository.save(user);
-    }
-
-    @PutMapping("/{id}")
-    public Utilisateur updateUser(@PathVariable Long id, @RequestBody Utilisateur userData) {
-        Utilisateur user = utilisateurRepository.findById(id).orElse(null);
-        if (user != null) {
-            user.setNom(userData.getNom());
-            user.setEmail(userData.getEmail());
-            user.setMotDePasse(userData.getMotDePasse());
-            return utilisateurRepository.save(user);
+    public ResponseEntity<Utilisateur> addUser(@RequestBody Utilisateur user) {
+        // (optionnel) éviter doublons d'email
+        Utilisateur existing = utilisateurRepository.findByEmail(user.getEmail());
+        if (existing != null) {
+            return ResponseEntity.status(409).build(); // Conflict
         }
-        return null;
+        // user.getRole() peut être null -> restera NULL en base
+        Utilisateur saved = utilisateurRepository.save(user);
+        return ResponseEntity.status(201).body(saved);
     }
 
+    // PUT /users/{id} -> mise à jour complète (inclut role optionnel)
+    @PutMapping("/{id}")
+    public ResponseEntity<Utilisateur> updateUser(@PathVariable Long id, @RequestBody Utilisateur userData) {
+        return utilisateurRepository.findById(id)
+                .map(user -> {
+                    user.setNom(userData.getNom());
+                    user.setEmail(userData.getEmail());
+                    user.setMotDePasse(userData.getMotDePasse());
+                    user.setRole(userData.getRole()); // <= peut être null, c’est voulu
+                    Utilisateur saved = utilisateurRepository.save(user);
+                    return ResponseEntity.ok(saved);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // PATCH /users/{id}/role?role=ADMIN -> mise à jour partielle du rôle (optionnel)
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<Utilisateur> patchUserRole(@PathVariable Long id,
+                                                     @RequestParam(required = false) String role) {
+        return utilisateurRepository.findById(id)
+                .map(user -> {
+                    user.setRole(role); // peut être null -> efface le rôle
+                    Utilisateur saved = utilisateurRepository.save(user);
+                    return ResponseEntity.ok(saved);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /users/{id} -> suppression
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        utilisateurRepository.deleteById(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        if (utilisateurRepository.existsById(id)) {
+            utilisateurRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

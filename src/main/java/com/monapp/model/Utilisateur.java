@@ -3,15 +3,19 @@ package com.monapp.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table (name = "utilisateur")
-
+@Table(name = "utilisateur")
 public class Utilisateur {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nom;
     private String email;
     private String motDePasse;
+
+    @Column(nullable = true)
+    private String role;
 
     // Getters et setters
     public Long getId() { return id; }
@@ -25,4 +29,7 @@ public class Utilisateur {
 
     public String getMotDePasse() { return motDePasse; }
     public void setMotDePasse(String motDePasse) { this.motDePasse = motDePasse; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }

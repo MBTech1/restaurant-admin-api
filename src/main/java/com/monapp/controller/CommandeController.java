@@ -29,7 +29,6 @@ public class CommandeController {
     }
 
     // GET /api/commandes/by-restaurant/{restaurantId}
-    //   filtres optionnels: ?statut=acceptee&from=2025-08-10T00:00&to=2025-08-12T23:59
     @GetMapping("/by-restaurant/{restaurantId}")
     public List<Commande> getByRestaurant(@PathVariable Long restaurantId,
                                           @RequestParam(required = false) Statut statut,
